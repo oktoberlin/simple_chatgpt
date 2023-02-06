@@ -5,11 +5,13 @@ export default function Home() {
 
   const [questionInput, setQuestionInput] = useState("");
   const [result, setResult] = useState();
+  const [loading, setLoading] = useState(false);
 
   async function onSubmit(event: any) {
     event.preventDefault();
+    setLoading(true);
     try {
-      const response = await fetch("/api/generate", {
+      const response = await fetch("/api/generate", { // fetching data based on file 'generate.ts' inside api directory
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,8 +28,10 @@ export default function Home() {
       setQuestionInput("");
     } catch (error) {
       // Consider implementing your own error handling logic here
+      alert("Failed to fetch data. Please try again")
       console.error(error);
     }
+    setLoading(false);
   }
 
   return (
@@ -60,10 +64,7 @@ export default function Home() {
 
               <div>
                 <button type="submit" className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-
-                  </span>
-                  Submit
+                  { loading ? 'Submitting...' : 'Submit'}
                 </button>
               </div>
               {
