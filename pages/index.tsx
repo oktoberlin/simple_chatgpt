@@ -1,7 +1,35 @@
 import Head from 'next/head'
+import { useState } from "react";
 
 export default function Home() {
-  
+
+  const [questionInput, setQuestionInput] = useState("");
+  const [result, setResult] = useState();
+
+  async function onSubmit(event: any) {
+    event.preventDefault();
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question: questionInput }),
+      });
+
+      const data = await response.json();
+      if (response.status !== 200) {
+        throw data.error || new Error(`Request failed with status ${response.status}`);
+      }
+
+      setResult(data.result);
+      setQuestionInput("");
+    } catch (error) {
+      // Consider implementing your own error handling logic here
+      console.error(error);
+    }
+  }
+
   return (
     <>
       <Head>
@@ -10,9 +38,47 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main>
-        <h1 className="text-3xl font-bold text-indigo-700 underline">
-          Hello world!
-        </h1>
+        <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-md space-y-8">
+            <div>
+              <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-indigo-700">Simple ChatGPT</h2>
+
+            </div>
+            <form className="mt-8 space-y-6" onSubmit={onSubmit}>
+              <div className="-space-y-px rounded-md shadow-sm">
+                <div>
+                  <input
+                    id="text-input"
+                    name="questionInput"
+                    type="text"
+                    value={questionInput}
+                    onChange={(e) => setQuestionInput(e.target.value)}
+                    className="relative block w-full appearance-none rounded border border-gray-300 px-3 py-2 text-gray-900 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" placeholder="" />
+                </div>
+
+              </div>
+
+              <div>
+                <button type="submit" className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+
+                  </span>
+                  Submit
+                </button>
+              </div>
+              {
+                result ? (
+                  <div className="max-w-md p-3 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                    <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">{result}</p>
+                  </div>
+                ) : (
+                  <></>
+                )
+              }
+
+            </form>
+          </div>
+        </div>
       </main>
     </>
   )
